@@ -2,32 +2,23 @@ pipeline {
     agent any
 
     parameters {
-        choice(name: 'DEPLOY_TYPE', choices: ['blue-green', 'canary'], description: 'Tipo de despliegue')
+        choice(name: 'DEPLOY_TYPE', 
+               choices: ['blue-green', 'canary', 'rollback-blue'], 
+               description: 'Selecciona la estrategia de despliegue')
     }
 
     stages {
-
         stage('Checkout') {
             steps {
-                git 'https://github.com/lesantivanez/deployJenkins.git'
+                git 'https://github.com/karolaquinotoledo-prog/deployjenkins.git'
             }
         }
 
-        stage('Build') {
+        stage('Build & Prepare') {
             steps {
                 sh 'docker-compose build'
-            }
-        }
-
-        stage('Deploy Blue') {
-            steps {
-                sh 'docker-compose up -d blue'
-            }
-        }
-
-        stage('Deploy Green') {
-            steps {
-                sh 'docker-compose up -d green'
+                // Levantamos ambos para asegurar que estén listos
+                sh 'docker-compose up -d blue green'
             }
         }
 
@@ -35,18 +26,28 @@ pipeline {
             steps {
                 script {
                     if (params.DEPLOY_TYPE == 'blue-green') {
-                        sh '''
-                        sed -i 's/server blue:3000;/server green:3000;/' nginx/nginx.conf
-                        docker-compose restart nginx
-                        '''
-                    } else {
-                        sh '''
-                        echo "Activando canary"
-                        docker-compose restart nginx
-                        '''
+                        echo "Cambiando tráfico totalmente a GREEN..."
+                        sh 'cp nginx/nginx_green.conf nginx/nginx.conf'
+                    } 
+                    else if (params.DEPLOY_TYPE == 'canary') {
+                        echo "Activando modo CANARY (80% Blue - 20% Green)..."
+                        sh 'cp nginx/nginx_canary.conf nginx/nginx.conf'
                     }
+                    else if (params.DEPLOY_TYPE == 'rollback-blue') {
+                        echo "Regresando tráfico a BLUE..."
+                        sh 'cp nginx/nginx_blue.conf nginx/nginx.conf'
+                    }
+
+                    // Recargar Nginx sin tirar el contenedor
+                    sh 'docker exec nginx_lb nginx -s reload'
                 }
             }
+        }
+    }
+    
+    post {
+        always {
+            echo "Proceso finalizado."
         }
     }
 }
