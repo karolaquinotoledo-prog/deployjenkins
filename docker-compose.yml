@@ -28,11 +28,15 @@ services:
   jenkins:
     image: jenkins/jenkins:lts
     container_name: jenkins_lab
+    user: root
     ports:
       - "9090:8080"
+    
     volumes:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker
+      - /usr/libexec/docker/cli-plugins:/usr/libexec/docker/cli-plugins
 
 volumes:
   jenkins_home:

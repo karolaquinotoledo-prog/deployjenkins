@@ -16,9 +16,9 @@ pipeline {
 
         stage('Build & Prepare') {
             steps {
-                sh 'docker-compose build'
+                sh 'docker compose build'
                 // Levantamos ambos para asegurar que estén listos
-                sh 'docker-compose up -d blue green'
+                sh 'docker compose up -d blue green nginx'
             }
         }
 
@@ -33,11 +33,7 @@ pipeline {
                         echo "Activando modo CANARY (80% Blue - 20% Green)..."
                         sh 'cp nginx/nginx_canary.conf nginx/nginx.conf'
                     }
-                    else if (params.DEPLOY_TYPE == 'rollback-blue') {
-                        echo "Regresando tráfico a BLUE..."
-                        sh 'cp nginx/nginx_blue.conf nginx/nginx.conf'
-                    }
-
+                    
                     // Recargar Nginx sin tirar el contenedor
                     sh 'docker exec nginx_lb nginx -s reload'
                 }
