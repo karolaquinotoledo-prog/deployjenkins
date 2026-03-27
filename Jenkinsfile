@@ -8,11 +8,11 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
+        /*stage('Checkout') {
             steps {
                 git 'https://github.com/karolaquinotoledo-prog/deployjenkins.git'
             }
-        }
+        }*/
 
         stage('Build & Prepare') {
             steps {
