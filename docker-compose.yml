@@ -28,7 +28,7 @@ services:
   jenkins:
     image: jenkins/jenkins:lts
     container_name: jenkins_lab
-    user: 
+    user: "root"
     privileged: true
     ports:
       - "9090:8080"
