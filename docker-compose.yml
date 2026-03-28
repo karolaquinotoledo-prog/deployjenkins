@@ -26,6 +26,10 @@ services:
       - green
 
   jenkins:
+    build:
+      context: .
+      dockerfile: Dockerfile.jenkins
+
     image: jenkins/jenkins:lts
     container_name: jenkins_lab
     user: "root"
