@@ -35,7 +35,7 @@ services:
     user: "root"
     privileged: true
     ports:
-      - "9090:8080"
+      - "8080:8080"
     
     volumes:
       - jenkins_home:/var/jenkins_home
