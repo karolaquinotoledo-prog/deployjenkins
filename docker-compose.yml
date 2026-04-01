@@ -30,7 +30,7 @@ services:
       context: .
       dockerfile: Dockerfile.jenkins
 
-    image: jenkins/jenkins:lts
+    #image: jenkins/jenkins:lts
     container_name: jenkins_lab
     user: "root"
     privileged: true
